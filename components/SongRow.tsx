@@ -33,7 +33,7 @@ export default function SongRow({
   return (
     <button
       onClick={handleClick}
-      className={`w-full grid grid-cols-[32px_1fr_1fr_56px] items-center gap-4 px-3 py-2.5 rounded-md text-left transition-colors group ${
+      className={`w-full grid grid-cols-[32px_48px_1fr_1fr_56px] items-center gap-4 px-3 py-2.5 rounded-md text-left transition-colors group ${
         isActive ? 'bg-white/[0.06]' : 'hover:bg-white/[0.04]'
       }`}
     >
@@ -43,6 +43,14 @@ export default function SongRow({
       <span className="text-sm text-[#F5F3EE] hidden group-hover:inline">
         {isActive && isPlaying ? '⏸' : '▶'}
       </span>
+
+      <div className="w-12 h-12 rounded-md overflow-hidden bg-white/[0.04] border border-white/[0.06] shrink-0">
+        {song.cover ? (
+          <img src={song.cover} alt={song.title} className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-white/[0.08] to-transparent" />
+        )}
+      </div>
 
       <div className="min-w-0">
         <p className={`text-sm font-medium truncate ${isActive ? 'text-[#E8B34C]' : 'text-[#F5F3EE]'}`}>
