@@ -1,69 +1,33 @@
-import bcrypt from 'bcryptjs';
+import { SignJWT, jwtVerify } from 'jose';
 
-const SALT_ROUNDS = 10;
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('Falta la variable de entorno JWT_SECRET (agregala a tu .env.local)');
+}
 
-/**
- * Encriptar contraseña con bcryptjs
- */
-export async function hashPassword(password: string): Promise<string> {
+const secretKey = new TextEncoder().encode(JWT_SECRET);
+
+export const SESSION_COOKIE = 'session_token';
+
+export type SessionPayload = {
+  userId: number;
+  nombre: string;
+  correo: string;
+};
+
+export async function signSession(payload: SessionPayload) {
+  return new SignJWT({ ...payload })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('7d')
+    .sign(secretKey);
+}
+
+export async function verifySession(token: string): Promise<SessionPayload | null> {
   try {
-    return await bcrypt.hash(password, SALT_ROUNDS);
-  } catch (error) {
-    console.error('Error al encriptar contraseña:', error);
-    throw new Error('Error en la encriptación de contraseña');
+    const { payload } = await jwtVerify(token, secretKey);
+    return payload as unknown as SessionPayload;
+  } catch {
+    return null;
   }
-}
-
-/**
- * Verificar contraseña 
- */
-export async function verifyPassword(
-  password: string,
-  hash: string
-): Promise<boolean> {
-  try {
-    return await bcrypt.compare(password, hash);
-  } catch (error) {
-    console.error('Error al verificar contraseña:', error);
-    throw new Error('Error en la verificación de contraseña');
-  }
-}
-
-/**
- * Validar email
- */
-export function validateEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-/**
- * Validar contraseña
- */
-export function validatePasswordStrength(password: string): {
-  isValid: boolean;
-  errors: string[];
-} {
-  const errors: string[] = [];
-
-  if (password.length < 8) {
-    errors.push('Mínimo 8 caracteres');
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Requiere al menos 1 letra mayúscula');
-  }
-
-  if (!/\d/.test(password)) {
-    errors.push('Requiere al menos 1 número');
-  }
-
-  if (!/[@$!%*?&]/.test(password)) {
-    errors.push('Requiere al menos 1 carácter especial (@$!%*?&)');
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
 }

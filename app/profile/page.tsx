@@ -1,270 +1,70 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-interface FormData {
-  nombre: string;
-  apellido: string;
-  correo: string;
-  password: string;
-  confirmPassword: string;
-}
-
-interface ValidationErrors {
-  nombre?: string;
-  apellido?: string;
-  correo?: string;
-  password?: string;
-  confirmPassword?: string;
-}
+type User = { nombre: string; correo: string };
 
 export default function ProfilePage() {
-  const [formData, setFormData] = useState<FormData>({
-    nombre: '',
-    apellido: '',
-    correo: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const router = useRouter();
+  const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = cargando
 
-  const [errors, setErrors] = useState<ValidationErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  useEffect(() => {
+    fetch('/api/me')
+      .then((res) => res.json())
+      .then((data) => setUser(data.user));
+  }, []);
 
-  // Validaciones
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const handleLogout = async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    router.push('/login');
+    router.refresh();
   };
 
-  const validatePassword = (password: string): boolean => {
-    // Mínimo 8 caracteres, al menos 1 mayúscula, 1 número y 1 carácter especial
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
-  };
+  if (user === undefined) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="text-sm text-[#6E6B67]">Cargando...</p>
+      </div>
+    );
+  }
 
-  const validateForm = (): boolean => {
-    const newErrors: ValidationErrors = {};
-
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es requerido';
-    }
-
-    if (!formData.apellido.trim()) {
-      newErrors.apellido = 'El apellido es requerido';
-    }
-
-    if (!formData.correo.trim()) {
-      newErrors.correo = 'El correo es requerido';
-    } else if (!validateEmail(formData.correo)) {
-      newErrors.correo = 'El correo no es válido';
-    }
-
-    if (!formData.password.trim()) {
-      newErrors.password = 'La contraseña es requerida';
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'La contraseña debe tener mínimo 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial (@$!%*?&)';
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Limpiar error del campo cuando el usuario empieza a escribir
-    if (errors[name as keyof ValidationErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSuccessMessage('');
-    setErrorMessage('');
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nombre: formData.nombre,
-          apellido: formData.apellido,
-          correo: formData.correo,
-          password: formData.password,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al registrarse');
-      }
-
-      setSuccessMessage('¡Registro exitoso! Bienvenido.');
-      setFormData({
-        nombre: '',
-        apellido: '',
-        correo: '',
-        password: '',
-        confirmPassword: ''
-      });
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Error al registrarse. Intenta nuevamente.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  if (user === null) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4">
+        <p className="text-sm text-[#9A9691]">No iniciaste sesión.</p>
+        <a
+          href="/login"
+          className="px-5 py-2.5 bg-[#E8B34C] text-[#0B0B0D] text-sm font-semibold rounded-full hover:scale-105 transition-transform"
+        >
+          Iniciar sesión
+        </a>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex flex-col justify-between">
-      {/* Navbar */}
-      {/* <nav className="bg-zinc-800/50 backdrop-blur-md p-4 shadow-lg border-b border-zinc-700">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            MiAplicación
-          </h1>
-          <ul className="flex space-x-6 text-gray-300">
-            <li className="hover:text-white cursor-pointer transition-colors">Inicio</li>
-            <li className="hover:text-white cursor-pointer transition-colors">Servicios</li>
-            <li className="hover:text-white cursor-pointer transition-colors">Contacto</li>
-          </ul>
+    <div className="flex-1 overflow-y-auto px-6 pt-6 pb-10 bg-gradient-to-b from-[#17171A] to-[#0B0B0D]">
+      <h1 className="text-2xl font-bold text-[#F5F3EE] mb-6 font-[family-name:var(--font-display)]">
+        Mi perfil
+      </h1>
+
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-20 h-20 rounded-full bg-white/[0.08] flex items-center justify-center text-2xl font-bold text-[#F5F3EE]">
+          {user.nombre.charAt(0).toUpperCase()}
         </div>
-      </nav> */}
-
-      {/* Contenido Principal */}
-      <main className="flex-1 flex items-center justify-center p-4">
-        <div className="bg-zinc-900/80 backdrop-blur-xl border border-zinc-700 rounded-2xl p-8 w-full max-w-md shadow-2xl">
-          <h2 className="text-3xl font-bold mb-2 text-center text-white">Crear Cuenta</h2>
-
-          {/* Mensajes de éxito/error */}
-          {successMessage && (
-            <div className="mb-4 p-3 bg-green-900/30 border border-green-600 rounded-lg text-green-300 text-sm">
-              ✓ {successMessage}
-            </div>
-          )}
-          {errorMessage && (
-            <div className="mb-4 p-3 bg-red-900/30 border border-red-600 rounded-lg text-red-300 text-sm">
-              ✗ {errorMessage}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Nombre */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
-              <input
-                type="text"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 bg-zinc-800 border rounded-lg text-white focus:outline-none focus:ring-2 transition-all ${
-                  errors.nombre ? 'border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:ring-purple-500'
-                }`}
-                placeholder="Ingresa tu nombre"
-              />
-              {errors.nombre && <p className="text-red-400 text-xs mt-1">{errors.nombre}</p>}
-            </div>
-
-            {/* Apellido */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Apellido</label>
-              <input
-                type="text"
-                name="apellido"
-                value={formData.apellido}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 bg-zinc-800 border rounded-lg text-white focus:outline-none focus:ring-2 transition-all ${
-                  errors.apellido ? 'border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:ring-purple-500'
-                }`}
-                placeholder="Ingresa tu apellido"
-              />
-              {errors.apellido && <p className="text-red-400 text-xs mt-1">{errors.apellido}</p>}
-            </div>
-
-            {/* Correo */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Correo Electrónico</label>
-              <input
-                type="email"
-                name="correo"
-                value={formData.correo}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 bg-zinc-800 border rounded-lg text-white focus:outline-none focus:ring-2 transition-all ${
-                  errors.correo ? 'border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:ring-purple-500'
-                }`}
-                placeholder="correo@ejemplo.com"
-              />
-              {errors.correo && <p className="text-red-400 text-xs mt-1">{errors.correo}</p>}
-            </div>
-
-            {/* Contraseña */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 bg-zinc-800 border rounded-lg text-white focus:outline-none focus:ring-2 transition-all ${
-                  errors.password ? 'border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:ring-purple-500'
-                }`}
-                placeholder="••••••••"
-              />
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
-              <p className="text-gray-500 text-xs mt-1">Mín 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial</p>
-            </div>
-
-            {/* Confirmar Contraseña */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Repetir Contraseña</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 bg-zinc-800 border rounded-lg text-white focus:outline-none focus:ring-2 transition-all ${
-                  errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:ring-purple-500'
-                }`}
-                placeholder="••••••••"
-              />
-              {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
-            </div>
-
-            {/* Botón Registrar */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 mt-6"
-            >
-              {isLoading ? 'Registrando...' : 'Registrarse'}
-            </button>
-          </form>
-
-          <p className="text-gray-400 text-center text-sm mt-4">
-            ¿Ya tienes cuenta? <a href="/login" className="text-purple-400 hover:text-purple-300">Inicia sesión</a>
-          </p>
+        <div>
+          <p className="text-lg font-semibold text-[#F5F3EE]">{user.nombre}</p>
+          <p className="text-sm text-[#9A9691]">{user.correo}</p>
         </div>
-      </main>
+      </div>
 
-      {/* Footer */}
-      <footer className="bg-zinc-800/50 backdrop-blur-md p-4 text-center text-gray-400 text-sm border-t border-zinc-700">
-        © {new Date().getFullYear()} Todos los derechos reservados.
-      </footer>
+      <button
+        onClick={handleLogout}
+        className="px-5 py-2.5 bg-white/[0.06] hover:bg-white/[0.12] text-[#F5F3EE] text-sm font-semibold rounded-full transition-colors"
+      >
+        Cerrar sesión
+      </button>
     </div>
   );
 }

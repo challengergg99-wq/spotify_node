@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [usuario, setUsuario] = useState<{ nombre: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,7 +29,9 @@ export default function LoginPage() {
         return;
       }
 
-      setUsuario({ nombre: data.user.nombre });
+      // La cookie de sesión ya la seteó /api/login (httpOnly) — solo redirigimos.
+      router.push('/');
+      router.refresh();
     } catch (err) {
       setError('Error de conexión. Intenta nuevamente.');
     } finally {
@@ -36,34 +39,8 @@ export default function LoginPage() {
     }
   };
 
-  if (usuario) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            ¡Bienvenido {usuario.nombre}!
-          </h1>
-          <button
-            onClick={() => setUsuario(null)}
-            className="mt-6 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-          >
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex flex-col justify-between">
-      {/* <nav className="bg-zinc-800/50 backdrop-blur-md p-4 shadow-lg border-b border-zinc-700">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            MiAplicación
-          </h1>
-        </div>
-      </nav> */}
-
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="bg-zinc-900/80 backdrop-blur-xl border border-zinc-700 rounded-2xl p-8 w-full max-w-md shadow-2xl">
           <h2 className="text-3xl font-bold mb-2 text-center text-white">Iniciar Sesión</h2>
@@ -110,7 +87,10 @@ export default function LoginPage() {
           </form>
 
           <p className="text-gray-400 text-center text-sm mt-4">
-            ¿No tienes cuenta? <a href="/profile" className="text-purple-400 hover:text-purple-300">Regístrate</a>
+            ¿No tienes cuenta?{' '}
+            <a href="/register" className="text-purple-400 hover:text-purple-300">
+              Regístrate
+            </a>
           </p>
         </div>
       </main>

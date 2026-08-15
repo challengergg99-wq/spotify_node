@@ -1,83 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { hashPassword, validateEmail, validatePasswordStrength } from '@/lib/auth';
-import { registerUser, getUserByEmail } from '@/lib/db';
+import bcrypt from 'bcryptjs';
+import { pool } from '@/lib/db';
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { nombre, apellido, correo, password } = body;
+    const { nombre, apellido, correo, password } = await req.json();
 
-    // ===== Validaciones =====
-    
-    // 1. Verificar que todos los campos existan
     if (!nombre || !apellido || !correo || !password) {
-      return NextResponse.json(
-        { message: 'Todos los campos son requeridos' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Faltan campos requeridos' }, { status: 400 });
     }
 
-    // 2. Validar email
-    if (!validateEmail(correo)) {
-      return NextResponse.json(
-        { message: 'El formato de correo no es válido' },
-        { status: 400 }
-      );
+    const existing = await pool.query('SELECT id FROM users WHERE correo = $1', [correo]);
+    if (existing.rows.length > 0) {
+      return NextResponse.json({ message: 'Ese correo ya está registrado' }, { status: 409 });
     }
 
-    // 3. Validar fortaleza de contraseña
-    const passwordValidation = validatePasswordStrength(password);
-    if (!passwordValidation.isValid) {
-      return NextResponse.json(
-        { message: 'Contraseña débil', errors: passwordValidation.errors },
-        { status: 400 }
-      );
-    }
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    // 4. Verificar que el email no esté registrado
-    const existingUser = await getUserByEmail(correo);
-    if (existingUser) {
-      return NextResponse.json(
-        { message: 'Este correo electrónico ya está registrado' },
-        { status: 409 }
-      );
-    }
-
-    // ===== Procesar Registro =====
-
-    // 1. Encriptar contraseña
-    const passwordHash = await hashPassword(password);
-
-    // 2. Registrar en base de datos
-    const newUser = await registerUser(nombre, apellido, correo, passwordHash);
-
-    // 3. Retornar respuesta exitosa
-    return NextResponse.json(
-      {
-        message: 'Registro exitoso. ¡Bienvenido!',
-        user: {
-          id: newUser.id,
-          nombre: newUser.nombre,
-          apellido: newUser.apellido,
-          correo: newUser.correo,
-          created_at: newUser.created_at
-        }
-      },
-      { status: 201 }
+    const result = await pool.query(
+      `INSERT INTO users (nombre, apellido, correo, password_hash)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, nombre, correo`,
+      [nombre, apellido, correo, passwordHash]
     );
-  } catch (error: any) {
-    console.error('Error en registro:', error);
 
-    // Manejo de errores específicos
-    if (error.message === 'El correo electrónico ya está registrado') {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 409 }
-      );
-    }
-
+    return NextResponse.json({ user: result.rows[0] }, { status: 201 });
+  } catch (err) {
+    console.error('Error en /api/register:', err);
     return NextResponse.json(
-      { message: 'Error al procesar el registro. Intenta nuevamente más tarde.' },
+      { message: 'Error interno del servidor. Revisá la terminal para más detalles.' },
       { status: 500 }
     );
   }

@@ -1,71 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPassword, validateEmail } from '@/lib/auth';
-import { getUserByEmail, getUserPasswordHash } from '@/lib/db';
+import bcrypt from 'bcryptjs';
+import { pool } from '@/lib/db';
+import { signSession, SESSION_COOKIE } from '@/lib/auth';
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { correo, password } = body;
+    const { correo, password } = await req.json();
 
-    // Validaciones básicas
     if (!correo || !password) {
-      return NextResponse.json(
-        { message: 'Correo y contraseña son requeridos' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Correo y contraseña son requeridos' }, { status: 400 });
     }
 
-    if (!validateEmail(correo)) {
-      return NextResponse.json(
-        { message: 'El formato de correo no es válido' },
-        { status: 400 }
-      );
-    }
-
-    // Buscar usuario por correo
-    const user = await getUserByEmail(correo);
-    if (!user) {
-      return NextResponse.json(
-        { message: 'Correo o contraseña incorrectos' },
-        { status: 401 }
-      );
-    }
-
-    // Obtener hash de contraseña
-    const passwordHash = await getUserPasswordHash(correo);
-    if (!passwordHash) {
-      return NextResponse.json(
-        { message: 'Correo o contraseña incorrectos' },
-        { status: 401 }
-      );
-    }
-
-    // Verificar contraseña
-    const isPasswordValid = await verifyPassword(password, passwordHash);
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { message: 'Correo o contraseña incorrectos' },
-        { status: 401 }
-      );
-    }
-
-    // Login exitoso
-    return NextResponse.json(
-      {
-        message: 'Inicio de sesión exitoso',
-        user: {
-          id: user.id,
-          nombre: user.nombre,
-          apellido: user.apellido,
-          correo: user.correo
-        }
-      },
-      { status: 200 }
+    const result = await pool.query(
+      'SELECT id, nombre, correo, password_hash FROM users WHERE correo = $1',
+      [correo]
     );
-  } catch (error: any) {
-    console.error('Error en login:', error);
+    const user = result.rows[0];
+
+    if (!user) {
+      return NextResponse.json({ message: 'Correo o contraseña incorrectos' }, { status: 401 });
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.password_hash);
+    if (!passwordMatches) {
+      return NextResponse.json({ message: 'Correo o contraseña incorrectos' }, { status: 401 });
+    }
+
+    const token = await signSession({ userId: user.id, nombre: user.nombre, correo: user.correo });
+
+    const response = NextResponse.json({
+      user: { nombre: user.nombre, correo: user.correo },
+    });
+
+    response.cookies.set(SESSION_COOKIE, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
+  } catch (err) {
+    // Este console.error es el que hay que mirar en la terminal de `npm run dev`
+    console.error('Error en /api/login:', err);
     return NextResponse.json(
-      { message: 'Error al procesar el login. Intenta nuevamente.' },
+      { message: 'Error interno del servidor. Revisá la terminal para más detalles.' },
       { status: 500 }
     );
   }
