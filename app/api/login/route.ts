@@ -26,7 +26,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Correo o contraseña incorrectos' }, { status: 401 });
     }
 
-    const token = await signSession({ userId: user.id, nombre: user.nombre, correo: user.correo });
+    const token = await signSession({
+      userId: user.id,
+      nombre: user.nombre,
+      correo: user.correo,
+    });
 
     const response = NextResponse.json({
       user: { nombre: user.nombre, correo: user.correo },

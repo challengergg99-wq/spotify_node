@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-type User = { nombre: string; correo: string };
+type User = { nombre: string; correo: string; isAdmin: boolean };
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -58,6 +59,15 @@ export default function ProfilePage() {
           <p className="text-sm text-[#9A9691]">{user.correo}</p>
         </div>
       </div>
+
+      {user.isAdmin && (
+        <Link
+          href="/admin"
+          className="mb-4 inline-flex rounded-md border border-[#E8B34C]/40 px-4 py-2.5 text-sm font-semibold text-[#E8B34C] hover:bg-[#E8B34C]/10"
+        >
+          Abrir panel de administración
+        </Link>
+      )}
 
       <button
         onClick={handleLogout}

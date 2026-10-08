@@ -4,27 +4,27 @@ export type MockAlbum = {
   subtitle: string;
 };
 
-export type Song ={
-  id: string;
+export type Song = {
+  id: string | number;
   title: string;
   artist: string;
   album: string;
   duration: number;
   src: string;
-  cover:string;
-}
+  cover: string;
+};
 
 export const SONGS: Song[] = [
-  { id: 's1', title: 'Canción 1', artist: 'Artista 1', album: 'Álbum A', duration: 214, src: '/music/1/01.mp3',cover:"/covers/deep_purple_splat-portada.jpg" },
-  { id: 's2', title: 'Canción 2', artist: 'Artista 1', album: 'Álbum A', duration: 187, src: '/music/1/02.mp3',cover:"/covers/deep_purple_splat-portada.jpg"},
-  { id: 's3', title: 'Canción 3', artist: 'Artista 2', album: 'Álbum B', duration: 245, src: '/music/1/03.mp3',cover:"/covers/francisca_valenzuela_maldita-portada.jpg"},
-  { id: 's4', title: 'Canción 4', artist: 'Artista 3', album: 'Álbum C', duration: 198, src: '/music/1/04.mp3',cover:"/covers/muse_unravelling-portada.jpg"},
-  { id: 's5', title: 'Canción 5', artist: 'Artista 2', album: 'Álbum B', duration: 231, src: '/music/1/05.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
-  { id: 's6', title: 'Canción 6', artist: 'Artista 2', album: 'Álbum B', duration: 225, src: '/music/2/01.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
-  { id: 's7', title: 'Canción 7', artist: 'Artista 3', album: 'Álbum B', duration: 115, src: '/music/2/02.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
-  { id: 's8', title: 'Canción 8', artist: 'Artista 3', album: 'Álbum B', duration: 211, src: '/music/2/03.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
-  { id: 's9', title: 'Canción 9', artist: 'Artista 2', album: 'Álbum B', duration: 215, src: '/music/2/04.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
-  { id: 's10', title: 'Canción 10', artist: 'Artista 2', album: 'Álbum B', duration: 121, src: '/music/2/05.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
+  { id: 1, title: 'Canción 1', artist: 'Artista 1', album: 'Álbum A', duration: 214, src: '/music/1/01.mp3',cover:"/covers/deep_purple_splat-portada.jpg" },
+  { id: 2, title: 'Canción 2', artist: 'Artista 1', album: 'Álbum A', duration: 187, src: '/music/1/02.mp3',cover:"/covers/deep_purple_splat-portada.jpg"},
+  { id: 3, title: 'Canción 3', artist: 'Artista 2', album: 'Álbum B', duration: 245, src: '/music/1/03.mp3',cover:"/covers/francisca_valenzuela_maldita-portada.jpg"},
+  { id: 4, title: 'Canción 4', artist: 'Artista 3', album: 'Álbum C', duration: 198, src: '/music/1/04.mp3',cover:"/covers/muse_unravelling-portada.jpg"},
+  { id: 5, title: 'Canción 5', artist: 'Artista 2', album: 'Álbum B', duration: 231, src: '/music/1/05.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
+  { id: 6, title: 'Canción 6', artist: 'Artista 2', album: 'Álbum B', duration: 225, src: '/music/2/01.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
+  { id: 7, title: 'Canción 7', artist: 'Artista 3', album: 'Álbum B', duration: 115, src: '/music/2/02.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
+  { id: 8, title: 'Canción 8', artist: 'Artista 3', album: 'Álbum B', duration: 211, src: '/music/2/03.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
+  { id: 9, title: 'Canción 9', artist: 'Artista 2', album: 'Álbum B', duration: 215, src: '/music/2/04.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
+  { id: 10, title: 'Canción 10', artist: 'Artista 2', album: 'Álbum B', duration: 121, src: '/music/2/05.mp3',cover:"/covers/the_temper_trap_sungazer-portada.jpg"},
 ]
 
 

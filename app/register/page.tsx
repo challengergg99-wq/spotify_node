@@ -32,6 +32,7 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -81,6 +82,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage('');
+    setSuccessMessage('');
 
     if (!validateForm()) return;
 
@@ -91,20 +93,29 @@ export default function RegisterPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombre: formData.nombre,
-          apellido: formData.apellido,
-          correo: formData.correo,
+          nombre: formData.nombre.trim(),
+          apellido: formData.apellido.trim(),
+          correo: formData.correo.trim(),
           password: formData.password,
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al registrarse');
+      let data: { message?: string } | null = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
       }
 
-      // Registro OK — mandamos a login para que inicie sesión con su cuenta nueva
-      router.push('/login');
+      if (!response.ok) {
+        throw new Error(data?.message || 'Error al registrarse. Intenta nuevamente.');
+      }
+
+      setSuccessMessage(data?.message || 'Usuario registrado correctamente');
+
+      setTimeout(() => {
+        router.push('/login');
+      }, 1200);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Error al registrarse. Intenta nuevamente.');
     } finally {
@@ -121,6 +132,12 @@ export default function RegisterPage() {
           {errorMessage && (
             <div className="mb-4 p-3 bg-red-900/30 border border-red-600 rounded-lg text-red-300 text-sm">
               ✗ {errorMessage}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-900/30 border border-green-600 rounded-lg text-green-300 text-sm">
+              ✓ {successMessage}
             </div>
           )}
 
