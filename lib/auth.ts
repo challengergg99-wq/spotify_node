@@ -13,6 +13,7 @@ export type SessionPayload = {
   userId: number;
   nombre: string;
   correo: string;
+  isAdmin: boolean;
 };
 
 export async function signSession(payload: SessionPayload) {

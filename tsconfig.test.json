@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "rootDir": ".",
+    "outDir": ".test-dist"
+  },
+  "include": [
+    "lib/validation.ts",
+    "lib/song-validation.ts",
+    "tests/**/*.test.ts"
+  ],
+  "exclude": ["node_modules", ".next", ".test-dist"]
+}

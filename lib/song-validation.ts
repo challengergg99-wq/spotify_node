@@ -18,7 +18,11 @@ export function parseSongInput(value: unknown): { song?: SongInput; error?: stri
   const album = typeof body.album === 'string' ? body.album.trim() : '';
   const src = typeof body.src === 'string' ? body.src.trim() : '';
   const cover = typeof body.cover === 'string' ? body.cover.trim() : '';
-  const duration = Number(body.duration);
+  const duration =
+    typeof body.duration === 'number' ||
+    (typeof body.duration === 'string' && body.duration.trim() !== '')
+      ? Number(body.duration)
+      : Number.NaN;
 
   if (!title || !artist || !album || !src) {
     return { error: 'Título, artista, álbum y ruta de audio son obligatorios' };

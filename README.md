@@ -191,6 +191,21 @@ El panel está disponible en `/admin` y sus secciones de resumen, canciones, usu
 | `npm run build` | Genera la compilación de producción. |
 | `npm run start` | Sirve la compilación de producción. |
 | `npm run lint` | Ejecuta ESLint. |
+| `npm run typecheck` | Comprueba los tipos de TypeScript sin generar archivos. |
+| `npm test` | Ejecuta las pruebas unitarias de validación. |
+| `npm run test:e2e` | Ejecuta los recorridos de extremo a extremo con Playwright. |
+
+### Pruebas E2E
+
+Las pruebas E2E requieren una base PostgreSQL **aislada para pruebas**, con el esquema de la aplicación, un usuario existente y al menos una canción cuyo título, artista o álbum coincida con la búsqueda. No uses la base de producción: el recorrido crea y elimina una playlist de prueba.
+
+Configura estas variables en el entorno antes de ejecutar `npm run test:e2e`:
+
+- `E2E_DATABASE_URL`: conexión a la base de datos de pruebas.
+- `E2E_USER_EMAIL` y `E2E_USER_PASSWORD`: credenciales del usuario de pruebas.
+- `E2E_SEARCH_QUERY`: texto de al menos 2 caracteres que encuentre una canción en esa base.
+
+Instala Chromium para Playwright una vez con `npx playwright install chromium`. El comando E2E inicia Next.js en el puerto `3100` y pasa `E2E_DATABASE_URL` como `DATABASE_URL` al proceso de pruebas.
 
 ## Aprendizajes del proyecto
 
