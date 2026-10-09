@@ -77,7 +77,7 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
   # ─────────────────────────────────────────────
-  # CD: deploy a Vercel solo desde main y solo si el CI pasó
+  # CD: deploy a Vercel solo desde main 
   # ─────────────────────────────────────────────
   deploy:
     name: Deploy a producción
