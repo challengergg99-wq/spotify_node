@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -77,12 +77,12 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
   # ─────────────────────────────────────────────
-  # CD: deploy a Vercel solo desde main y solo si el CI pasó
+  # CD: deploy a Vercel solo desde master y solo si el CI pasó
   # ─────────────────────────────────────────────
   deploy:
     name: Deploy a producción
     needs: ci
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
