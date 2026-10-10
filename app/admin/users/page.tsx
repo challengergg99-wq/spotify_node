@@ -19,7 +19,6 @@ export default function AdminUsersPage() {
   const [busyId, setBusyId] = useState<number | null>(null);
 
   const loadUsers = () => {
-    setLoading(true);
     fetch('/api/admin/users')
       .then(async (res) => {
         const data = await res.json();

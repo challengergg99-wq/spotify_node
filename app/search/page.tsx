@@ -16,19 +16,20 @@ export default function SearchPage() {
 
   useEffect(() => {
     const q = query.trim();
-    setSongs([]);
-    setPlaylists([]);
-    setError('');
-
-    if (q.length < 2) {
-      setLoading(false);
-      return;
-    }
+    if (!q) return;
 
     const controller = new AbortController();
-    setLoading(true);
-
     const timeout = setTimeout(async () => {
+      setLoading(true);
+      setError('');
+      setSongs([]);
+      setPlaylists([]);
+
+      if (q.length < 2) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(q)}`, {
           signal: controller.signal,
@@ -57,7 +58,10 @@ export default function SearchPage() {
   }, [query]);
 
   const normalizedQuery = query.trim();
-  const hasResults = songs.length > 0 || playlists.length > 0;
+  const hasQuery = query.trim() !== '';
+  const visibleSongs = hasQuery ? songs : [];
+  const visiblePlaylists = hasQuery ? playlists : [];
+  const hasResults = visibleSongs.length > 0 || visiblePlaylists.length > 0;
 
   return (
     <div className="flex-1 overflow-y-auto px-6 pt-6 pb-10 bg-gradient-to-b from-[#17171A] to-[#0B0B0D]">
@@ -73,7 +77,7 @@ export default function SearchPage() {
         />
       </div>
 
-      {!normalizedQuery && (
+      {!hasQuery && (
         <p className="text-sm text-[#6E6B67]">Empezá a escribir para buscar canciones y playlists.</p>
       )}
 
@@ -95,13 +99,13 @@ export default function SearchPage() {
         </p>
       )}
 
-      {playlists.length > 0 && (
+      {visiblePlaylists.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold text-[#F5F3EE] mb-3 font-[family-name:var(--font-display)]">
             Playlists
           </h2>
           <div className="flex flex-col gap-1">
-            {playlists.map((pl) => (
+            {visiblePlaylists.map((pl) => (
               <Link
                 key={pl.id}
                 href={`/playlist/${pl.id}`}
@@ -115,14 +119,14 @@ export default function SearchPage() {
         </section>
       )}
 
-      {songs.length > 0 && (
+      {visibleSongs.length > 0 && (
         <section>
           <h2 className="text-lg font-bold text-[#F5F3EE] mb-3 font-[family-name:var(--font-display)]">
             Canciones
           </h2>
           <div className="flex flex-col gap-0.5">
-            {songs.map((song, i) => (
-              <SongRow key={song.id} song={song} index={i} queue={songs} />
+            {visibleSongs.map((song, i) => (
+              <SongRow key={song.id} song={song} index={i} queue={visibleSongs} />
             ))}
           </div>
         </section>

@@ -32,7 +32,7 @@ export default function LoginPage() {
       // La cookie de sesión ya la seteó /api/login (httpOnly) — solo redirigimos.
       router.push('/');
       router.refresh();
-    } catch (err) {
+    } catch {
       setError('Error de conexión. Intenta nuevamente.');
     } finally {
       setIsLoading(false);

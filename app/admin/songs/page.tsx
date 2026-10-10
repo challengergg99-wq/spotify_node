@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 type Song = {
   id: number;
@@ -22,7 +23,6 @@ export default function AdminSongsPage() {
   const [error, setError] = useState('');
 
   const load = () => {
-    setLoading(true);
     fetch('/api/songs')
       .then((res) => res.json())
       .then((data) => setSongs(data.songs ?? []))
@@ -169,11 +169,13 @@ export default function AdminSongsPage() {
             >
               <div className="h-10 w-10 overflow-hidden rounded bg-white/[0.06]">
                 {song.cover && (
-                  <img
+                  <Image
                     src={song.cover}
                     alt={`${song.title} - portada`}
                     className="h-full w-full object-cover"
                     loading="lazy"
+                    width={40}
+                    height={40}
                   />
                 )}
               </div>

@@ -16,7 +16,6 @@ export default function AdminPlaylistsPage() {
   const [error, setError] = useState('');
 
   const load = () => {
-    setLoading(true);
     fetch('/api/admin/playlists')
       .then(async (res) => {
         const data = await res.json();

@@ -1,6 +1,7 @@
 'use client';
 
 import { usePlayer } from '../lib/player-context';
+import Image from 'next/image';
 
 function formatTime(seconds: number) {
   if (!seconds || Number.isNaN(seconds)) return '0:00';
@@ -33,7 +34,7 @@ export default function PlayerBar() {
             <div className="absolute -inset-2 bg-[#E8B34C]/25 blur-lg rounded-full" />
           )}
           {currentSong?.cover ? (
-            <img src={currentSong.cover} alt={currentSong.title} className="relative h-full w-full object-cover" />
+            <Image src={currentSong.cover} alt={currentSong.title} className="relative h-full w-full object-cover" width={56} height={56}/>
           ) : (
             <div className="relative w-full h-full rounded-md bg-gradient-to-br from-white/[0.06] to-transparent" />
           )}

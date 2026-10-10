@@ -33,23 +33,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  // Crea el elemento <audio> una sola vez (solo existe en el navegador)
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
     }
-    const audio = audioRef.current;
-
-    const onTimeUpdate = () => setProgress(audio.currentTime);
-    const onEnded = () => next();
-
-    audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.addEventListener('ended', onEnded);
-    return () => {
-      audio.removeEventListener('timeupdate', onTimeUpdate);
-      audio.removeEventListener('ended', onEnded);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSong]);
+  }, []);
 
   const playSong = useCallback((song: Song, newQueue?: Song[]) => {
     const audio = audioRef.current;
@@ -84,6 +73,23 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     const nextSong = queue[idx + 1];
     if (nextSong) playSong(nextSong, queue);
   }, [currentSong, queue, playSong]);
+
+  // Escucha el progreso y el fin de la canción. Va DESPUÉS de `next` y depende de él,
+  // así siempre usa la cola y la canción actuales (sin closures viejos).
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onTimeUpdate = () => setProgress(audio.currentTime);
+    const onEnded = () => next();
+
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('ended', onEnded);
+    return () => {
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('ended', onEnded);
+    };
+  }, [next]);
 
   const prev = useCallback(() => {
     if (!currentSong || queue.length === 0) return;

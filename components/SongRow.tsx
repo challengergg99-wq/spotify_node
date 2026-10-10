@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { usePlayer, type Song } from '@/lib/player-context';
 import AddToPlaylistMenu from './AddToPlaylistMenu';
 
@@ -57,11 +58,13 @@ export default function SongRow({
       <div className="flex min-w-0 items-center gap-3">
         <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-white/[0.06]">
           {song.cover && (
-            <img
+            <Image
               src={song.cover}
+              width={40}
+              height={40}
               alt={`${song.title} - portada`}
               className="h-full w-full object-cover"
-              loading="lazy"
+              unoptimized
             />
           )}
         </div>
