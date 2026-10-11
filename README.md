@@ -47,7 +47,7 @@ Las rutas de búsqueda, canciones, playlists y autenticación trabajan con Postg
 3. Crea un archivo `.env.local` en la raíz del proyecto:
 
 	 ```env
-	 DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/groove
+	 DATABASE_URL=postgresql://usuario:contraseña@localhost:5433/groove
 	 JWT_SECRET=reemplaza-esto-por-un-secreto-largo-y-aleatorio
 	 ```
 

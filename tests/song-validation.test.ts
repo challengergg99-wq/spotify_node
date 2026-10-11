@@ -1,5 +1,4 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+import { expect, test } from 'vitest';
 import { parseSongInput } from '../lib/song-validation';
 
 const validSong = {
@@ -11,7 +10,7 @@ const validSong = {
 };
 
 test('parseSongInput trims text, parses duration, and defaults the cover to null', () => {
-  assert.deepEqual(parseSongInput(validSong), {
+  expect(parseSongInput(validSong)).toEqual({
     song: {
       title: 'Mi canción',
       artist: 'Artista',
@@ -24,23 +23,19 @@ test('parseSongInput trims text, parses duration, and defaults the cover to null
 });
 
 test('parseSongInput accepts a cover path and converts a blank cover to null', () => {
-  assert.equal(
-    parseSongInput({ ...validSong, cover: '/covers/album.jpg' }).song?.cover,
-    '/covers/album.jpg'
-  );
-  assert.equal(parseSongInput({ ...validSong, cover: '   ' }).song?.cover, null);
+  expect(parseSongInput({ ...validSong, cover: '/covers/album.jpg' }).song?.cover).toBe('/covers/album.jpg');
+  expect(parseSongInput({ ...validSong, cover: '   ' }).song?.cover).toBeNull();
 });
 
 test('parseSongInput rejects values that are not objects', () => {
   for (const value of [null, undefined, [], 'canción', 42]) {
-    assert.equal(parseSongInput(value).error, 'Los datos de la canción no son válidos');
+    expect(parseSongInput(value).error).toBe('Los datos de la canción no son válidos');
   }
 });
 
 test('parseSongInput requires title, artist, album, and audio path', () => {
   for (const field of ['title', 'artist', 'album', 'src'] as const) {
-    assert.equal(
-      parseSongInput({ ...validSong, [field]: '   ' }).error,
+    expect(parseSongInput({ ...validSong, [field]: '   ' }).error).toBe(
       'Título, artista, álbum y ruta de audio son obligatorios'
     );
   }
@@ -48,20 +43,18 @@ test('parseSongInput requires title, artist, album, and audio path', () => {
 
 test('parseSongInput rejects title, artist, and album longer than 255 characters', () => {
   for (const field of ['title', 'artist', 'album'] as const) {
-    assert.equal(
-      parseSongInput({ ...validSong, [field]: 'a'.repeat(256) }).error,
+    expect(parseSongInput({ ...validSong, [field]: 'a'.repeat(256) }).error).toBe(
       'Título, artista y álbum deben tener hasta 255 caracteres'
     );
   }
 });
 
 test('parseSongInput accepts duration bounds and rejects invalid durations', () => {
-  assert.equal(parseSongInput({ ...validSong, duration: 0 }).song?.duration, 0);
-  assert.equal(parseSongInput({ ...validSong, duration: 86400 }).song?.duration, 86400);
+  expect(parseSongInput({ ...validSong, duration: 0 }).song?.duration).toBe(0);
+  expect(parseSongInput({ ...validSong, duration: 86400 }).song?.duration).toBe(86400);
 
   for (const duration of [-1, 86401, 1.5, Number.NaN, 'no es número', null, true, '   ']) {
-    assert.equal(
-      parseSongInput({ ...validSong, duration }).error,
+    expect(parseSongInput({ ...validSong, duration }).error).toBe(
       'La duración debe ser un número entero entre 0 y 86400 segundos'
     );
   }
@@ -69,8 +62,7 @@ test('parseSongInput accepts duration bounds and rejects invalid durations', () 
 
 test('parseSongInput only accepts safe audio paths under /music/', () => {
   for (const src of ['/audio/cancion.mp3', '/music/../privado.mp3', '/music\\cancion.mp3']) {
-    assert.equal(
-      parseSongInput({ ...validSong, src }).error,
+    expect(parseSongInput({ ...validSong, src }).error).toBe(
       'La ruta de audio debe apuntar a un archivo dentro de /music/'
     );
   }
@@ -78,8 +70,7 @@ test('parseSongInput only accepts safe audio paths under /music/', () => {
 
 test('parseSongInput only accepts safe cover paths under /covers/', () => {
   for (const cover of ['/images/portada.jpg', '/covers/../privado.jpg', '/covers\\portada.jpg']) {
-    assert.equal(
-      parseSongInput({ ...validSong, cover }).error,
+    expect(parseSongInput({ ...validSong, cover }).error).toBe(
       'La portada debe apuntar a un archivo dentro de /covers/'
     );
   }

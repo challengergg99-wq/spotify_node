@@ -1,13 +1,12 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+import { expect, test } from 'vitest';
 import { validateEmail, validateName, validatePassword } from '../lib/validation';
 
 test('validatePassword accepts a password meeting every requirement', () => {
-  assert.deepEqual(validatePassword('Musica123!'), { isValid: true, errors: [] });
+  expect(validatePassword('Musica123!')).toEqual({ isValid: true, errors: [] });
 });
 
 test('validatePassword reports each missing requirement', () => {
-  assert.deepEqual(validatePassword('abc'), {
+  expect(validatePassword('abc')).toEqual({
     isValid: false,
     errors: [
       'La contraseña debe tener mínimo 8 caracteres',
@@ -27,32 +26,32 @@ test('validatePassword rejects passwords missing each requirement individually',
   ];
 
   for (const [password, error] of cases) {
-    assert.deepEqual(validatePassword(password).errors, [error]);
+    expect(validatePassword(password).errors).toEqual([error]);
   }
 });
 
 test('validatePassword accepts every configured special character', () => {
   for (const specialChar of '@$!%*?&') {
-    assert.equal(validatePassword(`Musica123${specialChar}`).isValid, true);
+    expect(validatePassword(`Musica123${specialChar}`).isValid).toBe(true);
   }
 });
 
 test('validateEmail accepts a standard address', () => {
-  assert.equal(validateEmail('persona@example.com'), true);
+  expect(validateEmail('persona@example.com')).toBe(true);
 });
 
 test('validateEmail rejects missing parts and whitespace', () => {
   for (const email of ['sin-arroba.example.com', 'persona@', '@example.com', 'persona @example.com']) {
-    assert.equal(validateEmail(email), false, `Debe rechazar ${email}`);
+    expect(validateEmail(email), `Debe rechazar ${email}`).toBe(false);
   }
 });
 
 test('validateName trims whitespace and accepts names up to 50 characters', () => {
-  assert.equal(validateName('  Ana  '), true);
-  assert.equal(validateName('a'.repeat(50)), true);
+  expect(validateName('  Ana  ')).toBe(true);
+  expect(validateName('a'.repeat(50))).toBe(true);
 });
 
 test('validateName rejects blank names and names longer than 50 characters', () => {
-  assert.equal(validateName('   '), false);
-  assert.equal(validateName('a'.repeat(51)), false);
+  expect(validateName('   ')).toBe(false);
+  expect(validateName('a'.repeat(51))).toBe(false);
 });

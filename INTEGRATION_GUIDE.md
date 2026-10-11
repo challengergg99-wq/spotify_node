@@ -26,7 +26,7 @@
 
 ### 1. Variables de entorno (.env.local)
 ```
-DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/spotify
+DATABASE_URL=postgresql://usuario:contraseña@localhost:5433/spotify
 NODE_ENV=development
 ```
 
