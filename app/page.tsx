@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SONGS, PLAYLISTS } from '@/lib/mock-data';
 import SongRow from '@/components/SongRow';
 
+
 export default function SearchPage() {
   const [query, setQuery] = useState('');
 

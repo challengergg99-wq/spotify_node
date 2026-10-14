@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await pool.query(
-      'SELECT id, nombre, correo, password_hash FROM users WHERE correo = $1',
+      'SELECT id, nombre, correo, password_hash, is_admin FROM users WHERE correo = $1',
       [correo]
     );
     const user = result.rows[0];
@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       userId: user.id,
       nombre: user.nombre,
       correo: user.correo,
+      isAdmin: user.is_admin
     });
 
     const response = NextResponse.json({
