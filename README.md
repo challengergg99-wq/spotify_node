@@ -205,8 +205,6 @@ Configura estas variables en el entorno antes de ejecutar `npm run test:e2e`:
 - `E2E_USER_EMAIL` y `E2E_USER_PASSWORD`: credenciales del usuario de pruebas.
 - `E2E_SEARCH_QUERY`: texto de al menos 2 caracteres que encuentre una canción en esa base.
 
-Instala Chromium para Playwright una vez con `npx playwright install chromium`. El comando E2E inicia Next.js en el puerto `3100` y pasa `E2E_DATABASE_URL` como `DATABASE_URL` al proceso de pruebas.
-
 ## Aprendizajes del proyecto
 
 - **Modelado relacional con PostgreSQL:** diseñar entidades separadas para usuarios, canciones y playlists, y resolver la relación muchos-a-muchos con una tabla de unión (`playlist_songs`). Las claves primarias, foráneas, restricciones únicas y reglas de borrado ayudan a mantener los datos coherentes.
@@ -215,12 +213,3 @@ Instala Chromium para Playwright una vez con `npx playwright install chromium`. 
 - **Búsqueda eficiente desde la interfaz:** aplicar debounce para limitar solicitudes durante la escritura y topes de resultados para acotar el trabajo y el tamaño de las respuestas.
 - **Autenticación web:** guardar contraseñas como hashes, firmar JWT y transportarlo en una cookie `httpOnly`, además de comprobar la propiedad de las playlists antes de modificarlas.
 - **Separación de responsabilidades:** mantener las páginas y componentes de interfaz separados de las rutas API, el acceso a datos y el estado compartido del reproductor.
-
-## Mejoras futuras
-
-- Crear migraciones versionadas y un seed reproducible para preparar la base y cargar el catálogo inicial.
-- Unificar la portada con los datos de PostgreSQL y definir claramente qué contenido es personalizado y cuál es público.
-- Añadir controles y pruebas para errores de red, consultas lentas, expiración de sesión y permisos; revisar también la protección CSRF de operaciones autenticadas.
-- Incorporar pruebas automatizadas para autenticación, permisos, consultas y flujos principales de usuario.
-- Agregar validación de configuración al arrancar, registro estructurado y métricas para diagnosticar rendimiento.
-- Desplegar la aplicación y PostgreSQL con secretos seguros, copias de respaldo y almacenamiento de audio adecuado para producción.
