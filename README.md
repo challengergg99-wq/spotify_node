@@ -213,3 +213,24 @@ Configura estas variables en el entorno antes de ejecutar `npm run test:e2e`:
 - **Búsqueda eficiente desde la interfaz:** aplicar debounce para limitar solicitudes durante la escritura y topes de resultados para acotar el trabajo y el tamaño de las respuestas.
 - **Autenticación web:** guardar contraseñas como hashes, firmar JWT y transportarlo en una cookie `httpOnly`, además de comprobar la propiedad de las playlists antes de modificarlas.
 - **Separación de responsabilidades:** mantener las páginas y componentes de interfaz separados de las rutas API, el acceso a datos y el estado compartido del reproductor.
+
+
+# groove.
+
+![CI/CD](https://github.com/challengergg99-wq/spotify_node/actions/workflows/ci.yml/badge.svg)
+
+App de música estilo Spotify con backend propio: autenticación, playlists, búsqueda y panel de administración.
+
+**Demo:** https://groove-lime.vercel.app
+
+## Stack
+Next.js 16 · TypeScript · PostgreSQL (Neon) · JWT en cookie httpOnly · Tailwind
+
+## Pipeline CI/CD (GitHub Actions)
+1. **Lint** (ESLint)
+2. **Tests** (Vitest) contra un Postgres real levantado como servicio
+3. **Build** de producción
+4. **Auditoría de dependencias** (`npm audit`)
+5. **Deploy automático** a Vercel solo desde `master` y solo si todo lo anterior pasó
+
+Además, Dependabot propone actualizaciones de dependencias que pasan por el mismo pipeline.
