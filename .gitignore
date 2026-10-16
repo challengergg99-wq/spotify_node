@@ -45,3 +45,6 @@ next-env.d.ts
 
 #lint
 .test-dist
+
+.vercel
+.env*
