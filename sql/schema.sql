@@ -39,5 +39,15 @@ CREATE TABLE IF NOT EXISTS playlist_songs (
   PRIMARY KEY (playlist_id, song_id)
 );
 
+-- Intentos de login fallidos (límite de intentos contra fuerza bruta)
+CREATE TABLE IF NOT EXISTS login_attempts (
+  id SERIAL PRIMARY KEY,
+  correo VARCHAR(255) NOT NULL,
+  ip VARCHAR(64) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_login_attempts_correo ON login_attempts(correo, created_at);
+CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts(ip, created_at);
 CREATE INDEX IF NOT EXISTS idx_playlists_user_id ON playlists(user_id);
 CREATE INDEX IF NOT EXISTS idx_playlist_songs_playlist_id ON playlist_songs(playlist_id);
